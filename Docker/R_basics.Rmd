@@ -1,0 +1,50 @@
+---
+output:
+  html_document: default
+---
+
+
+```{r}
+#Initialize the notebook
+set.seed(420) # set deterministic behavior
+GENE_NUM <- 5
+GROUP_NUM <- 5
+```
+
+## Create matrix
+
+```{r}
+# random expression matrix `expr_matrix`
+expr_matrix <- matrix(sample.int(100, 50, replace = TRUE), nrow = GENE_NUM, 
+                      ncol = GROUP_NUM * 2)
+# col names
+colnames(expr_matrix) <- c("cond1", "cond2", "cond3", "cond4", "cond5",
+                          "ctrl1", "ctrl2", "ctrl3", "ctrl4", "ctrl5")
+# row names
+rownames(expr_matrix) <- c("gene1", "gene2", "gene3", "gene4", "gene5")
+```
+
+## Compute fold changes
+
+```{r}
+# initialize `expr_change_matrix`
+expr_change_matrix <- matrix(1:25, nrow = GENE_NUM, ncol = GROUP_NUM)
+# col names
+colnames(expr_change_matrix) <- c("group1", "group2", "group3", "group4", "group5")
+# row names
+rownames(expr_change_matrix) <- c("gene1", "gene2", "gene3", "gene4", "gene5")
+# iterate over trials and genes
+for (i in 1:GENE_NUM){
+  for (k in 1:GROUP_NUM){
+    cond_idx <- k
+    ctrl_idx <- k + GROUP_NUM
+    cond_expr <- expr_matrix[i, cond_idx]
+    ctrl_expr <- expr_matrix[i, ctrl_idx]
+    expr_change_matrix[i, k] <- log2(cond_expr/ctrl_expr) 
+  }
+}
+
+# display results
+(expr_change_matrix)
+```
+
