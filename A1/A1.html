@@ -644,10 +644,10 @@ syndrome(pSS)</a></li>
 <li><a href="#mds-plots" id="toc-mds-plots"><span class="toc-section-number">6.1</span> MDS Plots</a></li>
 <li><a href="#mean-variance-plot" id="toc-mean-variance-plot"><span class="toc-section-number">6.2</span> Mean-variance Plot</a></li>
 </ul></li>
-<li><a href="#data-presistence" id="toc-data-presistence"><span class="toc-section-number">7</span> Data Presistence</a></li>
-<li><a href="#joural-extra-information" id="toc-joural-extra-information"><span class="toc-section-number">8</span> Joural &amp; Extra
+<li><a href="#data-persistence" id="toc-data-persistence"><span class="toc-section-number">7</span> Data Persistence</a></li>
+<li><a href="#journal-extra-information" id="toc-journal-extra-information"><span class="toc-section-number">8</span> Journal &amp; Extra
 information</a></li>
-<li><a href="#interptation-and-analysis" id="toc-interptation-and-analysis"><span class="toc-section-number">9</span> Interptation and Analysis</a></li>
+<li><a href="#interpretation-and-analysis" id="toc-interpretation-and-analysis"><span class="toc-section-number">9</span> Interpretation and Analysis</a></li>
 <li><a href="#reference" id="toc-reference"><span class="toc-section-number">10</span> Reference</a></li>
 </ul>
 </div>
@@ -669,7 +669,7 @@ underlying cause of pSS is not fully understood, but it is thought to
 involve a combination of genetic and environmental factors that trigger
 an abnormal immune response <span class="citation">(Luo et al.
 2020)</span>. To understand the genetic cause of pSS, we focus on the
-transcriptome analysis of exocrine glands from pSS and non-pSS
+transcriptomie analysis of exocrine glands from pSS and non-pSS
 patients.</li>
 </ul>
 </div>
@@ -937,8 +937,9 @@ ENSG00000171195
 <ul>
 <li>As shown above, our dataset has 29 samples (16 pSS + 13 non-pSS
 replicates). The raw count matrix consists of 58302 genes.</li>
-<li>The Ensembl gene id is provided in the <code>Symbol</code> column
-and we will map it to HUGO symbols in the later section.</li>
+<li>The <code>Ensembl</code> gene id is provided in the
+<code>Symbol</code> column and we will map it to HUGO symbols in the
+later section.</li>
 </ul>
 </div>
 <div id="sample-matrix" class="section level2" number="2.3">
@@ -1082,7 +1083,8 @@ pSS_exp_filtered = pSS_exp[keep,]</code></pre>
 <li>We plot the density diagram for each samples with per-sample
 colouring and per-condition coloring.</li>
 </ul>
-<pre class="r"><code>df &lt;- as.data.frame(log2(cpm(pSS_exp_filtered[2:30])))
+<pre class="r"><code># sample-wise density plot
+df &lt;- as.data.frame(log2(cpm(pSS_exp_filtered[2:30])))
 df &lt;- stack(df)
 df$type &lt;- rep(samples[&quot;cond&quot;,]==&quot;Y&quot;, each=dim(pSS_exp_filtered)[1])
 per_sample &lt;- ggplot(data=df, aes(x=values, group=ind, col=ind)) +
@@ -1091,6 +1093,8 @@ per_sample &lt;- ggplot(data=df, aes(x=values, group=ind, col=ind)) +
     ggtitle(&quot;Per sample&quot;) +
   labs(col=&quot;Sample&quot;) +
   theme(legend.position = &quot;none&quot;)   
+
+# condition-wise density plot
 per_type &lt;- ggplot(data=df, aes(x=values, group=ind, col=type)) +
     geom_density(adjust=1.5, alpha=.4)+
     # ylab(&quot;Smoothing density of log2 CPM&quot;)+
@@ -1124,7 +1128,8 @@ results.</li>
 NUM_SAMPLE &lt;-  NUM_SAMPLE - length(outliers)
 corrected_pSS_exp_filtered &lt;- pSS_exp_filtered[, !(colnames(pSS_exp_filtered) %in%  outliers)]
 corrected_samples &lt;- samples[,!(colnames(samples) %in%  outliers)]</code></pre>
-<pre class="r"><code>df &lt;- as.data.frame(log2(cpm(corrected_pSS_exp_filtered[2: (NUM_SAMPLE+1)])))
+<pre class="r"><code># sample-wise density plot
+df &lt;- as.data.frame(log2(cpm(corrected_pSS_exp_filtered[2: (NUM_SAMPLE+1)])))
 df &lt;- stack(df)
 df$type &lt;- rep(corrected_samples[&quot;cond&quot;,]==&quot;Y&quot;, each=dim(corrected_pSS_exp_filtered)[1])
 per_sample &lt;- ggplot(data=df, aes(x=values, group=ind, col=ind)) +
@@ -1133,6 +1138,8 @@ per_sample &lt;- ggplot(data=df, aes(x=values, group=ind, col=ind)) +
     ggtitle(&quot;Per sample&quot;) +
   labs(col=&quot;Sample&quot;) +
   theme(legend.position = &quot;none&quot;)   
+
+# condition-wise density plot
 per_type &lt;- ggplot(data=df, aes(x=values, group=ind, col=type)) +
     geom_density(adjust=1.5, alpha=.4)+
     theme(axis.title.y=element_blank(),
@@ -1507,7 +1514,7 @@ A2M
 </tbody>
 </table>
 <ul>
-<li>There are no duplicated mapping between Ensembl and
+<li>There are no duplicated mapping between <code>Ensembl</code> and
 <code>HGNC</code> symbols.</li>
 </ul>
 </div>
@@ -1658,8 +1665,8 @@ and blue points showing a similar pattern.</li>
 </ul>
 </div>
 </div>
-<div id="data-presistence" class="section level1" number="7">
-<h1><span class="header-section-number">7</span> Data Presistence</h1>
+<div id="data-persistence" class="section level1" number="7">
+<h1><span class="header-section-number">7</span> Data Persistence</h1>
 <ul>
 <li>To make it easier for downstream analysis, we save the processed
 sample matrix and the expression data as <code>RDS</code> file into the
@@ -1675,16 +1682,16 @@ saveRDS(exp_d, D_SAVE_PATH)
 S_SAVE_PATH &lt;- &quot;sample_matrix.rds&quot;
 saveRDS(corrected_samples, S_SAVE_PATH)</code></pre>
 </div>
-<div id="joural-extra-information" class="section level1" number="8">
-<h1><span class="header-section-number">8</span> Joural &amp; Extra
+<div id="journal-extra-information" class="section level1" number="8">
+<h1><span class="header-section-number">8</span> Journal &amp; Extra
 information</h1>
 <ul>
 <li>Extra information, including dataset selection, is discussed in
-course journal (here)[<a href="https://github.com/bcb420-2023/Kuan_Pang/wiki/4.A1" class="uri">https://github.com/bcb420-2023/Kuan_Pang/wiki/4.A1</a>]</li>
+course journal <a href="https://github.com/bcb420-2023/Kuan_Pang/wiki/4.A1">here</a>.</li>
 </ul>
 </div>
-<div id="interptation-and-analysis" class="section level1" number="9">
-<h1><span class="header-section-number">9</span> Interptation and
+<div id="interpretation-and-analysis" class="section level1" number="9">
+<h1><span class="header-section-number">9</span> Interpretation and
 Analysis</h1>
 <blockquote>
 <p>What are the control and test conditions of the dataset?</p>
@@ -1702,7 +1709,7 @@ samples would be considered the control condition.</li>
 <li>As discussed in <a href="#primary-sjögrens-syndromepss">Primary
 Sjögren’s syndrome(pSS)</a>, Primary Sjögren’s syndrome (pSS) is a
 chronic autoimmune disease characterized by damage to the exocrine
-glands and extraglandular involvements <span class="citation">(Luo et
+glands and extra-glandular involvements <span class="citation">(Luo et
 al. 2020)</span>. Understanding the underlying biology of pSS is
 important for improving diagnosis and treatment of this debilitating
 disease. Studying the gene expression patterns in pSS patients can
@@ -1740,8 +1747,8 @@ mention these outliers, we think the deviation from the expected
 distribution pattern suggests potential technical issues with these
 samples, and we have treated them as outliers and removed them from
 further analysis. By doing so, we have ensured that the results of our
-analysis are based on high-quality data and that the conclusions drawn
-from the analysis are meaningful and supported by the data.</li>
+analysis are based on high-quality data and the conclusions drawn from
+the analysis are robust.</li>
 </ul>
 <blockquote>
 <p>How did you handle replicates?</p>
@@ -1773,7 +1780,7 @@ table:</p>
 <td>29</td>
 </tr>
 <tr class="even">
-<td>Final Coverage</td>
+<td>Final Cov.</td>
 <td>20394</td>
 <td>23</td>
 </tr>

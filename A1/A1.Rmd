@@ -18,7 +18,7 @@ bibliography: references.bib
 
 ## Primary Sjögren's syndrome(pSS)
 
-- Primary Sjögren's syndrome (pSS) is a chronic autoimmune disease that affects exocrine glands, such as the tear and saliva glands. The underlying cause of pSS is not fully understood, but it is thought to involve a combination of genetic and environmental factors that trigger an abnormal immune response [@luo2020transcriptome]. To understand the genetic cause of pSS, we focus on the transcriptome analysis of exocrine glands from pSS and non-pSS patients. 
+- Primary Sjögren's syndrome (pSS) is a chronic autoimmune disease that affects exocrine glands, such as the tear and saliva glands. The underlying cause of pSS is not fully understood, but it is thought to involve a combination of genetic and environmental factors that trigger an abnormal immune response [@luo2020transcriptome]. To understand the genetic cause of pSS, we focus on the transcriptomie analysis of exocrine glands from pSS and non-pSS patients. 
 
 ## Patients and Data
 
@@ -92,7 +92,7 @@ dim(pSS_exp)
 
 - As shown above, our dataset has 29 samples (16 pSS + 13 non-pSS replicates). 
 The raw count matrix consists of `r dim(pSS_exp)[1]` genes.
-- The Ensembl gene id is provided in the `Symbol` column and we will map it to
+- The `Ensembl` gene id is provided in the `Symbol` column and we will map it to
 HUGO symbols in the later section.
 
 
@@ -144,6 +144,7 @@ dim(pSS_exp_filtered)[1] / dim(pSS_exp)[1]
 per-condition coloring.
 
 ```{r, warning=FALSE}
+# sample-wise density plot
 df <- as.data.frame(log2(cpm(pSS_exp_filtered[2:30])))
 df <- stack(df)
 df$type <- rep(samples["cond",]=="Y", each=dim(pSS_exp_filtered)[1])
@@ -153,6 +154,8 @@ per_sample <- ggplot(data=df, aes(x=values, group=ind, col=ind)) +
     ggtitle("Per sample") +
   labs(col="Sample") +
   theme(legend.position = "none")   
+
+# condition-wise density plot
 per_type <- ggplot(data=df, aes(x=values, group=ind, col=type)) +
     geom_density(adjust=1.5, alpha=.4)+
     # ylab("Smoothing density of log2 CPM")+
@@ -177,6 +180,7 @@ corrected_samples <- samples[,!(colnames(samples) %in%  outliers)]
 ```
 
 ```{r, warning=FALSE}
+# sample-wise density plot
 df <- as.data.frame(log2(cpm(corrected_pSS_exp_filtered[2: (NUM_SAMPLE+1)])))
 df <- stack(df)
 df$type <- rep(corrected_samples["cond",]=="Y", each=dim(corrected_pSS_exp_filtered)[1])
@@ -186,6 +190,8 @@ per_sample <- ggplot(data=df, aes(x=values, group=ind, col=ind)) +
     ggtitle("Per sample") +
   labs(col="Sample") +
   theme(legend.position = "none")   
+
+# condition-wise density plot
 per_type <- ggplot(data=df, aes(x=values, group=ind, col=type)) +
     geom_density(adjust=1.5, alpha=.4)+
     theme(axis.title.y=element_blank(),
@@ -288,7 +294,7 @@ kable(sort(table(corrected_pSS_exp_annot$hgnc_symbol)
   kable_styling()
 ```
 
-- There are no duplicated mapping between Ensembl and `HGNC` symbols.
+- There are no duplicated mapping between `Ensembl` and `HGNC` symbols.
 
 # Normalization
 
@@ -406,7 +412,7 @@ plotMeanVar(exp_d, show.raw.vars = TRUE, show.tagwise.vars=TRUE,
 
 
 
-# Data Presistence
+# Data Persistence
 
 - To make it easier for downstream analysis, we save the processed sample matrix and the expression data as `RDS` file into the parent directory:
   * The file names are: `final_expr_matrix.rds` and `sample_matrix.rds`.
@@ -420,12 +426,12 @@ S_SAVE_PATH <- "sample_matrix.rds"
 saveRDS(corrected_samples, S_SAVE_PATH)
 ```
 
-# Joural & Extra information
+# Journal & Extra information
 
-- Extra information, including dataset selection, is discussed in course journal (here)[https://github.com/bcb420-2023/Kuan_Pang/wiki/4.A1]
+- Extra information, including dataset selection, is discussed in course journal [here](https://github.com/bcb420-2023/Kuan_Pang/wiki/4.A1).
 
 
-# Interptation and Analysis
+# Interpretation and Analysis
 
 > What are the control and test conditions of the dataset?
 
@@ -433,7 +439,7 @@ saveRDS(corrected_samples, S_SAVE_PATH)
 
 > Why is the dataset of interest to you?
 
-- As discussed in [Primary Sjögren's syndrome(pSS)], Primary Sjögren's syndrome (pSS) is a chronic autoimmune disease characterized by damage to the exocrine glands and extraglandular involvements [@luo2020transcriptome]. Understanding the underlying biology of pSS is important for improving diagnosis and treatment of this debilitating disease. Studying the gene expression patterns in pSS patients can provide valuable insights into the molecular mechanisms and support the development of new diagnostics.
+- As discussed in [Primary Sjögren's syndrome(pSS)], Primary Sjögren's syndrome (pSS) is a chronic autoimmune disease characterized by damage to the exocrine glands and extra-glandular involvements [@luo2020transcriptome]. Understanding the underlying biology of pSS is important for improving diagnosis and treatment of this debilitating disease. Studying the gene expression patterns in pSS patients can provide valuable insights into the molecular mechanisms and support the development of new diagnostics.
 
 > Were there expression values that were not unique for specific genes? How did you handle these?
 
@@ -445,7 +451,7 @@ saveRDS(corrected_samples, S_SAVE_PATH)
 
 > How many outliers were removed?
 
-- Six samples were removed from our dataset as a result of our analysis. As previously demonstrated in [Remove Outliers], the majority of samples (~80\%) showed a bimodal distribution, while six other samples displayed an abnormally high single peak. While the original publication did not mention these outliers, we think the deviation from the expected distribution pattern suggests potential technical issues with these samples, and we have treated them as outliers and removed them from further analysis. By doing so, we have ensured that the results of our analysis are based on high-quality data and that the conclusions drawn from the analysis are meaningful and supported by the data.
+- Six samples were removed from our dataset as a result of our analysis. As previously demonstrated in [Remove Outliers], the majority of samples (~80\%) showed a bimodal distribution, while six other samples displayed an abnormally high single peak. While the original publication did not mention these outliers, we think the deviation from the expected distribution pattern suggests potential technical issues with these samples, and we have treated them as outliers and removed them from further analysis. By doing so, we have ensured that the results of our analysis are based on high-quality data and the conclusions drawn from the analysis are robust.
 
 > How did you handle replicates?
 
@@ -458,7 +464,7 @@ saveRDS(corrected_samples, S_SAVE_PATH)
   |                | Gene Number | Sample |
   |----------------|-------------|--------|
   | Raw |       `r nrow(pSS_exp)`      |     29   |
-  | Final Coverage            |       `r nrow(corrected_pSS_exp_filtered)`      |    23    |
+  | Final Cov.           |       `r nrow(corrected_pSS_exp_filtered)`      |    23    |
   | $\%$     |       40.0\%      |     79.3\%   |
 
 # Reference
