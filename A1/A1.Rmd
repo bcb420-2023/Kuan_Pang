@@ -1,0 +1,466 @@
+---
+title: "BCB420-A1"
+author: Kuan Pang
+output:
+  html_document:
+    toc: true
+    number_sections: true 
+bibliography: references.bib  
+---
+
+<style type="text/css">
+  body{
+  font-size: 12pt;
+}
+</style>
+
+# Overview
+
+## Primary Sjögren's syndrome(pSS)
+
+- Primary Sjögren's syndrome (pSS) is a chronic autoimmune disease that affects exocrine glands, such as the tear and saliva glands. The underlying cause of pSS is not fully understood, but it is thought to involve a combination of genetic and environmental factors that trigger an abnormal immune response [@luo2020transcriptome]. To understand the genetic cause of pSS, we focus on the transcriptome analysis of exocrine glands from pSS and non-pSS patients. 
+
+## Patients and Data
+
+- As discussed, we selected [GSE159574](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE159574) from the NCBI GEO database, which consists of RNA sequencing with salivary glands with 16 pSS patients and 13 non-pSS patients. Two subgroups both experienced the subjective clinical symptoms of xerostomia or xerophthalmia while pSS patients fulfill the clinical classification criteria of the pSS. The other group serves as the control for the experiment. The original publication for the dataset is [here](https://www.frontiersin.org/articles/10.3389/fcell.2020.592490/full).
+
+
+# Setups
+
+## Dependencies
+
+- We import the library for the study:
+
+```{r message=FALSE, warning=FALSE}
+if (!requireNamespace("kableExtra", quietly = TRUE)) {
+    install.packages("kableExtra")
+}
+if (!requireNamespace("edgeR", quietly = TRUE)) {
+    install.packages("edgeR")
+}
+if (!requireNamespace("biomaRt", quietly = TRUE)) {
+    install.packages("biomaRt")
+}
+if (!requireNamespace("ggplot2", quietly = TRUE)) {
+    install.packages("ggplot2")
+}
+if (!requireNamespace("gridExtra", quietly = TRUE)) {
+    install.packages("gridExtra")
+}
+if (!requireNamespace("grid", quietly = TRUE)) {
+    install.packages("grid")
+}
+if (!requireNamespace("dplyr", quietly = TRUE)) {
+    install.packages("dplyr")
+}
+if (!requireNamespace("kableExtra", quietly = TRUE)) {
+    install.packages("kableExtra")
+}
+library(edgeR)
+library(biomaRt)
+library(ggplot2)
+library(gridExtra)
+library(grid)
+library(dplyr)
+library(kableExtra)
+```
+
+## Dataset
+
+- We retrive the raw count matrix from the GEO database for analysis.
+
+```{r, message=FALSE}
+# accession number
+geo_entry <- "GSE159574"
+NUM_SAMPLE <- 29
+sfiles <- GEOquery::getGEOSuppFiles('GSE159574')
+fnames <- rownames(sfiles)
+
+# read raw counts data
+pSS_exp <- read.delim(fnames[1],header=TRUE,
+                check.names = FALSE)
+```
+
+```{r}
+knitr::kable(head(pSS_exp[1:8]), format = "html") %>%
+  kable_styling()
+```
+
+```{r}
+dim(pSS_exp)
+```
+
+- As shown above, our dataset has 29 samples (16 pSS + 13 non-pSS replicates). 
+The raw count matrix consists of `r dim(pSS_exp)[1]` genes.
+- The Ensembl gene id is provided in the `Symbol` column and we will map it to
+HUGO symbols in the later section.
+
+
+## Sample Matrix
+
+- We prepare the sample matrix for downstream analysis. 
+  * Each sample has a `cond` and `patient` attribute: `cond` stands for pSS condition 
+  (`Y` for pSS samples and `N` for non-pSS samples) and `patient` is an unique 
+  identifier of the patient.
+
+```{r}
+samples <- data.frame(lapply(colnames(pSS_exp)[2:(NUM_SAMPLE+1)], 
+        FUN=function(x){unlist(strsplit(x, "(?=[A-Za-z])(?<=[0-9])|(?=[0-9])(?<=[A-Za-z])", perl=TRUE))}))
+colnames(samples) <- colnames(pSS_exp)[2:(NUM_SAMPLE+1)]
+rownames(samples) <- c("cond","patient")
+```
+
+
+```{r}
+knitr::kable(head(samples[1:8]), format = "html")%>%
+  kable_styling()
+```
+
+
+# Quality Control and Statistics
+
+## Feature Filtering 
+
+- First, according to the edgeR protocol, we filter out the weakly expressed and non-informative features. 
+  * We remove features without at least 1 read per million in 13 of the samples, as 13 is the size of the 
+  smallest group of replicates.
+  
+```{r}
+cpms = cpm(pSS_exp[2:(NUM_SAMPLE+1)])
+rownames(cpms) <- pSS_exp[,1]
+keep = rowSums(cpms >1) >=13
+pSS_exp_filtered = pSS_exp[keep,]
+```
+
+```{r}
+dim(pSS_exp_filtered)[1] / dim(pSS_exp)[1]
+```
+
+-  In this step, we removed ~65\% of the features in the dataset.
+
+## Statistics
+
+- We plot the density diagram for each samples with per-sample colouring and
+per-condition coloring.
+
+```{r, warning=FALSE}
+df <- as.data.frame(log2(cpm(pSS_exp_filtered[2:30])))
+df <- stack(df)
+df$type <- rep(samples["cond",]=="Y", each=dim(pSS_exp_filtered)[1])
+per_sample <- ggplot(data=df, aes(x=values, group=ind, col=ind)) +
+    geom_density(adjust=1.5, alpha=.4)+
+    ylab("Smoothing density of log2 CPM")+
+    ggtitle("Per sample") +
+  labs(col="Sample") +
+  theme(legend.position = "none")   
+per_type <- ggplot(data=df, aes(x=values, group=ind, col=type)) +
+    geom_density(adjust=1.5, alpha=.4)+
+    # ylab("Smoothing density of log2 CPM")+
+    theme(axis.title.y=element_blank(),
+          axis.ticks.y=element_blank())   +
+    ggtitle("Per condition")+
+    labs(col = "pSS")
+
+grid.arrange(per_sample, per_type, ncol=2, top = textGrob("Filtered Density Plot",gp=gpar(fontsize=16,font=3)))
+```
+
+- As shown in the previous analysis, the majority of samples (~80\%) exhibit a bimodal distribution, while six other samples display an extreme-high single peak. This is considered abnormal and suggests potential technical issues with these samples. The condition-colored density plots reveal that these five samples are a mixture of both pSS and non-pSS samples, indicating potential contamination or sample heterogeneity. However, the original publication did not mention how these samples were handled, leaving the cause of this deviation unclear. It is possible that this may be due to differences in sample acquisition or batch effect. To address this, we treated these five samples as outliers and removed them from downstream analysis to minimize any potential confounding factors and ensure the accuracy of our results.
+
+
+## Remove Outliers
+```{r}
+outliers <- c( "N1701241","N1701063","Y1703072",
+               "Y1704141", "Y1702101", "Y1704061")
+NUM_SAMPLE <-  NUM_SAMPLE - length(outliers)
+corrected_pSS_exp_filtered <- pSS_exp_filtered[, !(colnames(pSS_exp_filtered) %in%  outliers)]
+corrected_samples <- samples[,!(colnames(samples) %in%  outliers)]
+```
+
+```{r, warning=FALSE}
+df <- as.data.frame(log2(cpm(corrected_pSS_exp_filtered[2: (NUM_SAMPLE+1)])))
+df <- stack(df)
+df$type <- rep(corrected_samples["cond",]=="Y", each=dim(corrected_pSS_exp_filtered)[1])
+per_sample <- ggplot(data=df, aes(x=values, group=ind, col=ind)) +
+    geom_density(adjust=1.5, alpha=.4)+
+    ylab("Smoothing density of log2 CPM")+
+    ggtitle("Per sample") +
+  labs(col="Sample") +
+  theme(legend.position = "none")   
+per_type <- ggplot(data=df, aes(x=values, group=ind, col=type)) +
+    geom_density(adjust=1.5, alpha=.4)+
+    theme(axis.title.y=element_blank(),
+          axis.ticks.y=element_blank())   +
+    ggtitle("Per condition")+
+    labs(col = "pSS")
+
+grid.arrange(per_sample, per_type, ncol=2, top = textGrob("Corrected Density Plot",gp=gpar(fontsize=16,font=3)))
+```
+
+<!--- As shown, the outliers are carefully removed from further analysis. The corrected sample 
+matrix now consists of 11 non-pSS and 12 pSS samples.-->
+
+As shown in the previous analysis, a few samples were identified as outliers and removed from further analysis. This was done to ensure that the results were not influenced by these samples and that the data accurately reflected the gene expression patterns in pSS and non-pSS samples. With the outliers removed, the corrected sample matrix now consists of 11 non-pSS and 12 pSS samples. This reduction in sample size may impact the power of the analysis, but it will also reduce the potential for noisy signals and improve the robustness of the results.
+
+# Gene Identifier Mapping
+
+## Conversion from `Ensembl` to `HUGO`
+
+- We convert the `Ensembl` gene ids to `HGNC` gene symbols:
+
+```{r}
+ensembl <- useMart("ensembl")
+ensembl <- useDataset("hsapiens_gene_ensembl",mart=ensembl)
+conversion_stash <- "pSS_id_conversion.rds" 
+if(file.exists(conversion_stash)){
+  pSS_id_conversion <- readRDS(conversion_stash) } else {
+  pSS_id_conversion <- getBM(attributes = c("ensembl_gene_id","hgnc_symbol"),
+                            filters = c("ensembl_gene_id"),
+                            values = corrected_pSS_exp_filtered$Symbol,
+                            mart = ensembl)
+  saveRDS(pSS_id_conversion, conversion_stash)
+}
+```
+
+
+## Maping Results
+
+
+```{r}
+nrow(corrected_pSS_exp_filtered) - 
+  length(which(corrected_pSS_exp_filtered$Symbol %in%
+                pSS_id_conversion$ensembl_gene_id))
+```
+
+```{r}
+(nrow(corrected_pSS_exp_filtered) - 
+  length(which(corrected_pSS_exp_filtered$Symbol %in%
+                pSS_id_conversion$ensembl_gene_id))) / nrow(corrected_pSS_exp_filtered)
+```
+
+
+
+- There are 130 genes that are not successfully converted to the `HGNC` symbols, which is only ~0.6\% of our entire filtered dataset
+
+### Dataset Merge
+
+- We join the gene names into the count matrix:
+
+```{r}
+corrected_pSS_exp_annot <- merge(pSS_id_conversion, corrected_pSS_exp_filtered,
+                                 by.x = 1, by.y = 1, all.y = TRUE)
+```
+
+```{r}
+knitr::kable(head(corrected_pSS_exp_annot[1:8]), format = "html")%>%
+  kable_styling()
+```
+
+- We examine the values that failed mapping:
+
+```{r}
+kable((corrected_pSS_exp_annot[is.na(corrected_pSS_exp_annot$hgnc_symbol), ]$ensembl_gene_id)[1:8]) %>% 
+  kable_styling()
+```
+
+
+- The table above shows some selected unmapped `Ensembl` ids. After manual check of unmapped ids:
+  * Some values have withdrawn `HGNC` entries, such as `ENSG00000133808`.
+  * Some values do not are not included in the conversion database, such as `ENSG00000112096`.
+
+
+
+- We discard the unmapped values:
+
+
+
+```{r}
+corrected_pSS_exp_annot <- corrected_pSS_exp_annot[!is.na(corrected_pSS_exp_annot$hgnc_symbol), ]
+```
+
+
+### Check Duplication
+
+- We check the duplicated mapping for each `HGNC` symbols:
+
+```{r}
+kable(sort(table(corrected_pSS_exp_annot$hgnc_symbol)
+     [2:length(corrected_pSS_exp_annot$hgnc_symbol)], decreasing=TRUE)[1:3]) %>%
+  kable_styling()
+```
+
+- There are no duplicated mapping between Ensembl and `HGNC` symbols.
+
+# Normalization
+
+## TMM Normalization
+
+- We applied TMM normalization (weighted trimmed mean of M-values) [@robinson2010scaling]. The TMM normalization method is implemented in the `edgeR` package [@robinson2010edger]:
+
+```{r}
+filtered_data_matrix <- as.matrix(corrected_pSS_exp_annot[,3:(NUM_SAMPLE+2)])
+rownames(filtered_data_matrix) <- corrected_pSS_exp_annot$hgnc_symbol
+exp_d <- DGEList(counts=filtered_data_matrix, group=samples$cond)
+```
+
+- Calculate the normalization factors:
+
+```{r}
+exp_d <- calcNormFactors(exp_d, method="TMM")
+pSS_normalized_counts <- cpm(exp_d)
+```
+
+## Normalization Results
+
+### Density Plot
+
+- We check the normalization results:
+
+```{r warning=FALSE}
+# raw
+df <- as.data.frame(log2(pSS_normalized_counts))
+df <- stack(df)
+norm_fig <- ggplot(data=df, aes(x=values, group=ind, col=ind)) +
+    geom_density(adjust=1.5, alpha=.4)+
+    ylab("Smoothing density of log2 CPM")+
+    ggtitle("Normalized") +
+  labs(col="Sample") +
+  theme(legend.position = "none") 
+# normalized
+df <- as.data.frame(log2(cpm(corrected_pSS_exp_filtered[2: (NUM_SAMPLE+1)])))
+df <- stack(df)
+raw_fig <- ggplot(data=df, aes(x=values, group=ind, col=ind)) +
+    geom_density(adjust=1.5, alpha=.4)+
+    ylab("Smoothing density of log2 CPM")+
+    ggtitle("Raw") +
+  labs(col="Sample") +
+  theme(legend.position = "none")  
+
+
+grid.arrange(raw_fig, norm_fig, ncol=2, top = textGrob("Density Plot: Raw vs. Normalized",gp=gpar(fontsize=16,font=3)))
+```
+
+
+### Box plot
+
+```{r warning=FALSE}
+# raw
+df <- as.data.frame(log2(cpm(corrected_pSS_exp_filtered[2: (NUM_SAMPLE+1)])))
+df <- stack(df)
+raw <- ggplot(df, aes(x=ind, y=values))+
+  geom_boxplot()+
+  xlab("Sample")+
+  ylab("Log2 CPM")+
+  ggtitle("Raw")+
+  theme(axis.text.x = element_text(angle = 90))+
+  geom_hline(yintercept = median(df$values), color = "green", linetype = "dashed") 
+# normalized
+df <- as.data.frame(log2(pSS_normalized_counts))
+df <- stack(df)
+norm <- ggplot(df, aes(x=ind, y=values))+
+  geom_boxplot()+
+  xlab("Sample")+
+  ylab("Log2 CPM")+
+  ggtitle("Normalized")+
+  theme(axis.text.x = element_text(angle = 90)) +
+  geom_hline(yintercept = median(df$values), color = "green", linetype = "dashed") 
+grid.arrange(raw, norm, ncol=2, top = textGrob("Box Plot: Raw vs. Normalized" ,gp=gpar(fontsize=16,font=3)))
+```
+
+
+- The density plots and box plots comparing the raw data and the normalized data shown above reveal that normalization has been successful in aligning the distributions of the samples. Before normalization, the raw data showed significant differences in distribution shapes and central tendencies between samples. However, after normalization, the distributions of the samples are much more aligned, with similar shapes and central tendencies. This result suggests that the normalization process has effectively minimized the technical variation between samples, reducing the impact of technical factors on the results.
+
+- By reducing the technical variation, the normalized data provides a more accurate representation of the biological differences between the pSS and non-pSS samples, allowing for a more robust analysis of gene expression patterns. The improved data quality will increase the reliability of the results and support more confident conclusions about the biology of pSS and non-pSS.
+
+# More EDAs
+
+
+## MDS Plots
+
+```{r warning=FALSE}
+plotMDS(exp_d, labels=colnames(corrected_samples),
+  col = c("darkgreen","blue")[factor(corrected_samples["cond",])], 
+  main="Normalized Data MDS"
+  )
+```
+
+- The multidimensional scaling plot (MDS) shown above demonstrates that the primary pSS and non-pSS groups do not cluster together as expected. This result suggests the samples from the two groups may not easily distinguished based on their gene expression patterns. However, the plot also reflects that there is some group-wise distance. This result suggests that, despite the lack of clear separation between the two groups, there is still some degree of difference between groups.
+
+- Interestingly, sample `N1608181`, a non-pSS sample, seems to be distanced from the other samples in the same subgroup and is closer to the pSS samples. This observation raises questions about the underlying biology of this sample and whether it may represent a unique subtype of non-pSS. Further investigation may be needed to understand the biological significance of this sample and its relationship to the other samples in the dataset.
+
+
+## Mean-variance Plot
+
+```{r}
+# compute dispersion
+exp_d <- estimateCommonDisp(exp_d)
+exp_d <- estimateTagwiseDisp(exp_d)
+# figure
+plotMeanVar(exp_d, show.raw.vars = TRUE, show.tagwise.vars=TRUE, 
+            show.ave.raw.vars = TRUE,  
+            NBline=TRUE,
+            show.binned.common.disp.vars = TRUE,
+            main="Mean-Variance Plot")
+```
+
+- The mean-variance plots for both the pSS and non-pSS groups indicate that the gene expression levels in both groups exhibit similar amounts of variation. This is evident in the mean-variance plots, where the points for both groups overlap and follow a similar trend, with the grey and blue points showing a similar pattern.
+
+
+
+# Data Presistence
+
+- To make it easier for downstream analysis, we save the processed sample matrix and the expression data as `RDS` file into the parent directory:
+  * The file names are: `final_expr_matrix.rds` and `sample_matrix.rds`.
+  
+
+```{r}
+D_SAVE_PATH <- "final_expr_matrix.rds"
+saveRDS(exp_d, D_SAVE_PATH)
+
+S_SAVE_PATH <- "sample_matrix.rds"
+saveRDS(corrected_samples, S_SAVE_PATH)
+```
+
+# Joural & Extra information
+
+- Extra information, including dataset selection, is discussed in course journal (here)[https://github.com/bcb420-2023/Kuan_Pang/wiki/4.A1]
+
+
+# Interptation and Analysis
+
+> What are the control and test conditions of the dataset?
+
+-  As discussed in [Patients and Data], samples are biopsied from pSS patients and non-pSS individuals. In this case, pSS samples would be considered the test condition, and non-pSS samples would be considered the control condition.
+
+> Why is the dataset of interest to you?
+
+- As discussed in [Primary Sjögren's syndrome(pSS)], Primary Sjögren's syndrome (pSS) is a chronic autoimmune disease characterized by damage to the exocrine glands and extraglandular involvements [@luo2020transcriptome]. Understanding the underlying biology of pSS is important for improving diagnosis and treatment of this debilitating disease. Studying the gene expression patterns in pSS patients can provide valuable insights into the molecular mechanisms and support the development of new diagnostics.
+
+> Were there expression values that were not unique for specific genes? How did you handle these?
+
+-  All the expressions values are uniquely mapped to genes after filtering, each `Ensembl` id is mapped to a `HGNC` symbol, as discussed (here)[Mapping Results].
+
+> Were there expression values that could not be mapped to current HUGO symbols?
+
+- There are 130 expression values that are not mapped to the current `HGNC` symbols, since it is only  ~0.6\% of our dataset, we simply discard them from the downstream analysis. See [Maping Results] for details, including investigation into the missing values.
+
+> How many outliers were removed?
+
+- Six samples were removed from our dataset as a result of our analysis. As previously demonstrated in [Remove Outliers], the majority of samples (~80\%) showed a bimodal distribution, while six other samples displayed an abnormally high single peak. While the original publication did not mention these outliers, we think the deviation from the expected distribution pattern suggests potential technical issues with these samples, and we have treated them as outliers and removed them from further analysis. By doing so, we have ensured that the results of our analysis are based on high-quality data and that the conclusions drawn from the analysis are meaningful and supported by the data.
+
+> How did you handle replicates?
+
+- After removing outlier replicates, we performed TMM normalization [@robinson2010scaling] to minimize the technical variations among samples. We have observed more consistent and low-variant distribution across biological replicates. Figures in [Normalization] supplements our arguments.
+
+> What is the final coverage of your dataset?
+
+- The final coverage of our dataset is described in the following table:
+  
+  |                | Gene Number | Sample |
+  |----------------|-------------|--------|
+  | Raw |       `r nrow(pSS_exp)`      |     29   |
+  | Final Coverage            |       `r nrow(corrected_pSS_exp_filtered)`      |    23    |
+  | $\%$     |       40.0\%      |     79.3\%   |
+
+# Reference
+
+<div id="refs"></div>

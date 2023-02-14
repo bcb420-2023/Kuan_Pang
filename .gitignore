@@ -137,6 +137,9 @@ test.Rmd
 
 # database
 *.sqlite
+GSE*/*
+*.gz
+*.rds
 
 # notes
-*note.Rmd
+*note.*
