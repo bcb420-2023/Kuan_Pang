@@ -624,7 +624,7 @@ syndrome(pSS)</a></li>
 <ul>
 <li><a href="#conversion-from-ensembl-to-hugo" id="toc-conversion-from-ensembl-to-hugo"><span class="toc-section-number">4.1</span> Conversion from
 <code>Ensembl</code> to <code>HUGO</code></a></li>
-<li><a href="#maping-results" id="toc-maping-results"><span class="toc-section-number">4.2</span> Maping Results</a>
+<li><a href="#mapping-results" id="toc-mapping-results"><span class="toc-section-number">4.2</span> Mapping Results</a>
 <ul>
 <li><a href="#dataset-merge" id="toc-dataset-merge"><span class="toc-section-number">4.2.1</span> Dataset Merge</a></li>
 <li><a href="#check-duplication" id="toc-check-duplication"><span class="toc-section-number">4.2.2</span> Check Duplication</a></li>
@@ -1184,8 +1184,8 @@ if(file.exists(conversion_stash)){
   saveRDS(pSS_id_conversion, conversion_stash)
 }</code></pre>
 </div>
-<div id="maping-results" class="section level2" number="4.2">
-<h2><span class="header-section-number">4.2</span> Maping Results</h2>
+<div id="mapping-results" class="section level2" number="4.2">
+<h2><span class="header-section-number">4.2</span> Mapping Results</h2>
 <pre class="r"><code>nrow(corrected_pSS_exp_filtered) - 
   length(which(corrected_pSS_exp_filtered$Symbol %in%
                 pSS_id_conversion$ensembl_gene_id))</code></pre>
@@ -1722,8 +1722,8 @@ How did you handle these?</p>
 </blockquote>
 <ul>
 <li>All the expressions values are uniquely mapped to genes after
-filtering, each <code>Ensembl</code> id is mapped to a <code>HGNC</code>
-symbol, as discussed (here)[Mapping Results].</li>
+filtering, each <code>Ensembl</code> id is mapped to a unique
+<code>HGNC</code> symbol, as discussed in <a href="#mapping-results">Mapping Results</a>.</li>
 </ul>
 <blockquote>
 <p>Were there expression values that could not be mapped to current HUGO
@@ -1732,7 +1732,7 @@ symbols?</p>
 <ul>
 <li>There are 130 expression values that are not mapped to the current
 <code>HGNC</code> symbols, since it is only ~0.6% of our dataset, we
-simply discard them from the downstream analysis. See <a href="#maping-results">Maping Results</a> for details, including
+simply discard them from the downstream analysis. See <a href="#mapping-results">Mapping Results</a> for details, including
 investigation into the missing values.</li>
 </ul>
 <blockquote>

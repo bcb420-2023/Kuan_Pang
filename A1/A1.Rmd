@@ -228,7 +228,7 @@ if(file.exists(conversion_stash)){
 ```
 
 
-## Maping Results
+## Mapping Results
 
 
 ```{r}
@@ -443,11 +443,11 @@ saveRDS(corrected_samples, S_SAVE_PATH)
 
 > Were there expression values that were not unique for specific genes? How did you handle these?
 
--  All the expressions values are uniquely mapped to genes after filtering, each `Ensembl` id is mapped to a `HGNC` symbol, as discussed (here)[Mapping Results].
+-  All the expressions values are uniquely mapped to genes after filtering, each `Ensembl` id is mapped to a unique  `HGNC` symbol, as discussed in [Mapping Results].
 
 > Were there expression values that could not be mapped to current HUGO symbols?
 
-- There are 130 expression values that are not mapped to the current `HGNC` symbols, since it is only  ~0.6\% of our dataset, we simply discard them from the downstream analysis. See [Maping Results] for details, including investigation into the missing values.
+- There are 130 expression values that are not mapped to the current `HGNC` symbols, since it is only  ~0.6\% of our dataset, we simply discard them from the downstream analysis. See [Mapping Results] for details, including investigation into the missing values.
 
 > How many outliers were removed?
 
