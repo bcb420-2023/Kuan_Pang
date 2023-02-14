@@ -143,3 +143,6 @@ GSE*/*
 
 # notes
 *note.*
+
+# log files
+.log
