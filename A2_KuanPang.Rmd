@@ -516,7 +516,7 @@ dotplot(gobp[1:10,])
 
 - Do the over-representation results support conclusions or mechanism discussed in the original paper?
 
-> The over-representation results support the conclusions and mechanism discussed in the original paper [@luo2020transcriptome]. The original paper discussed the pSS is an autoimmune disease, and the over-representation results also point out the immune pathways are significantly enriched in pSS. The original paper also discussed the lack of tear secretion is a known symptom of pSS, and the over-representation results also point out the tear secretion is down-regulated. Moreover, he significantly expressed genes mostly intersect with the analysis results from the original paper, e.g., `MS4A1`.
+> The over-representation results support the conclusions and mechanism discussed in the original paper [@luo2020transcriptome]. The original paper discussed the pSS as an autoimmune disease, and the over-representation results point out the immune pathways are significantly enriched in pSS. The original paper also discussed the lack of tear secretion is a known symptom of pSS, and the over-representation results also point out the tear secretion relates to down-regulated genes. Moreover, those significantly expressed genes mostly intersect with the analysis results from the original paper, e.g., `MS4A1`.
 
 - Can you find evidence, i.e. publications, to support some of the results that you see. How does this evidence support your results.
 
