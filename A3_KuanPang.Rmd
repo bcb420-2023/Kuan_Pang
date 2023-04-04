@@ -94,10 +94,10 @@ neg_enrich <- read.table(file = neg_path, sep = '\t', header = TRUE, fill = TRUE
 ```
 
 
-- We visualize the enrichment results in dot plot (we select the most statistically significant ones on p-values):
+- Identified 1067 genesets with statistical significance (FDR < 0.25) enriched in pSS group and 1145 genesets enriched in non-pSS group. We visualize the enrichment results in dot plot (we select the most statistically significant ones on FDR):
 
 
-Enrichment in pSS group:
+- Enrichment in pSS group:
 ```{r}
 # perpare the input
 pos_package <- data.frame(
@@ -114,7 +114,7 @@ dotplot(pos_package[1:10,])
 **Figure 1.** The Dot plot displays the GSEA results for 10 significant hits in enriched genes for pSS group.
 
 
-Enrichment in non-pSS group:
+- Enrichment in non-pSS group:
 ```{r}
 # prepare the input
 neg_package <- data.frame(
