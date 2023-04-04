@@ -64,7 +64,7 @@ dotplot <- function(data){
                         axis.title.y = element_text(size = 8)) +
                  scale_color_gradient(low = "red", high = "blue") +
                   labs(x = "Enrichment Score(ES)",
-                       color = "P-value", 
+                       color = "FDR", 
                        size = "Geneset Size", 
                        y = NULL)
   return(plot)
