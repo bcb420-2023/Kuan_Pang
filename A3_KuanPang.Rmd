@@ -79,7 +79,7 @@ dotplot <- function(data){
 
 ## Method
 
-- In our next step, we will employ Gene Set Enrichment Analysis (GSEA) [@subramanian2005gene; @mootha2003pgc]  using the Bader Lab gene set [@GeneSets] for humans to further investigate the biological pathways and processes that may be impacted in pSS group vs. non-pSS group. This analysis will be conducted using GSEA mac software version `4.3.2`, a well-established and widely-used computational method to identify and interpret the functional context of differentially expressed genes. The Bader Lab gene set, known for its comprehensive and up-to-date collection of gene sets, will be utilized in its most recent release dated `March 2, 2023`, ensuring that our analysis is based on the latest available knowledge. 
+- In our next step, we will employ Gene Set Enrichment Analysis (GSEA) [@subramanian2005gene; @mootha2003pgc]  using the Bader Lab gene set [@GeneSets] for humans to further investigate the biological pathways and processes that may be impacted in pSS group vs. non-pSS group. This analysis will be conducted using `GSEA` mac software version `4.3.2`, a well-established and widely-used computational method to identify and interpret the functional context of differentially expressed genes. The Bader Lab gene set, known for its comprehensive and up-to-date collection of gene sets, will be utilized in its most recent release dated `March 2, 2023`, ensuring that our analysis is based on the latest available knowledge. 
 
 ## Enrichment Result
 
@@ -130,7 +130,7 @@ dotplot(neg_package[1:10,])
 
 **Figure 2.** The Dot plot displays the GSEA results for 10 significant hits in enriched genes for non-pSS group.
 
-- [Figure 1](Enrichment Result) and [Figure 2](Enrichment Result) provide a clear visual representation of our GSEA results through the use of informative dot plots. It is important to emphasize that all the results presented are statistically significant. The main gene sets enriched in the pSS group are primarily related to immune response, interferon response, and allograft rejection, which is consistent with the established understanding of pSS as an autoimmune disease [@luo2020transcriptome]. In contrast, the non-pSS group displays enrichment in gene sets involved in skin development and protein synthesis, inferring that the protein synthesis is suppressed in pSS groups.
+- [Figure 1](Enrichment Result) and [Figure 2](Enrichment Result) provide a clear visual representation of our GSEA results through the use of informative dot plots. It is important to emphasize that all the results presented are statistically significant. The main gene sets enriched in the pSS group are primarily related to immune response, interferon response, and allograft rejection, which is consistent with the established understanding of pSS as an autoimmune disease [@luo2020transcriptome]. In contrast, the non-pSS group displays enrichment in gene sets involved in cell development and protein synthesis, particularly for immune-response related protein synthesis.
 
 
 ## Comparison with ORA
@@ -174,7 +174,7 @@ dotplot(neg_package[1:10,])
 
 **Table 1.** ORA results from A2 for up-regulated genes and down-regulated genes for pSS condition.
 
-- By comparing the GSEA results ([Figure 1](Enrichment Result) and [Figure 2](Enrichment Result)) and the ORA result ([Table 1](Comparison with ORA)), the enriched gene sets identified by two distinct analytical methods, demonstrate a strong alignment and consistency in their findings. Both methods reveal significant enrichment in immune response-related gene sets, further substantiating the well-established autoimmune nature of pSS[@luo2020transcriptome]. On the other hand, for the non-pSS group, the ORA indicates enrichment in cell proliferation, which can be linked to the skin development and protein synthesis gene sets identified in the GSEA results. 
+- By comparing the GSEA results ([Figure 1](Enrichment Result) and [Figure 2](Enrichment Result)) and the ORA result ([Table 1](Comparison with ORA)), the enriched gene sets identified by two distinct analytical methods, demonstrate a strong alignment and consistency in their findings. Both methods reveal significant enrichment in immune response-related gene sets, further substantiating the well-established autoimmune nature of pSS[@luo2020transcriptome]. On the other hand, for the non-pSS group, the ORA indicates enrichment in cell proliferation, which can be linked to the cell development and protein synthesis gene sets identified in the GSEA results. 
 
 - However, the comparison is not straightforward. This is primarily due to the fact that the gene sets used in each method are not identical. In the GSEA analysis, we utilized the BaderLab curated gene sets [@GeneSets], which are curated from multiple sources, whereas in the ORA analysis, we only covered Gene Ontology Biological Process (GO:BP) gene sets [@mi2019panther]. As a result, the conclusions we have drawn are based on a qualitative comparison of gene set names rather than a rigorous quantitative analysis. 
 
@@ -195,7 +195,7 @@ dotplot(neg_package[1:10,])
 ![](./A3/figs/annot_wlegend.png)
 **Figure 4.** Annotated enrichment map showing the clustered genesets.
 
-- We then use AutoAnnotate app[@autoannotate] to construct the annotation after manual adjustment discussed in Journal. MCL clustering algorithm in the app [@autoannotate] is used to show the common labels among nodes. For the labels, we have max word per label leaving default at 3 and minimum word occurrence at 1. 
+- We then use `AutoAnnotate` app[@autoannotate] to construct the annotation after manual adjustment discussed in Journal. MCL clustering algorithm in the app [@autoannotate] is used to show the common labels among nodes. For the labels, we have max word per label leaving default at 3 and minimum word occurrence at 1. 
 
 - As shown in [Figure 4](Network Annotation), the analysis of enriched gene sets for pSS samples has identified the regulation of immune response as the most common theme. Additionally, some cell differentiation and proliferation keywords have emerged in our findings, highlighting other potential molecular mechanisms at play in pSS. In contrast, for non-pSS groups, our results show enrichment in gene sets related to protein synthesis and cell structure.
 
@@ -204,7 +204,7 @@ dotplot(neg_package[1:10,])
 
 **Figure 5.** Collapsed theme network reflecting the enriched gene sets for pSS groups.
 
-- As shown in [Figure 5](Network Annotation), we used AutoAnnotate app[@autoannotate] to construct a summary network for the annotated graph. The major themes are consistent with the observation before, including regulation of immune response, cell differentiation and proliferation for pSS group. Some protein synthesis and cell structure themes are related to non-pSS groups.
+- As shown in [Figure 5](Network Annotation), we used `AutoAnnotate` app[@autoannotate] to construct a summary network for the annotated graph. The major themes are consistent with the observation before, including regulation of immune response, cell differentiation and proliferation for pSS group. Some protein synthesis and cell structure themes are related to non-pSS groups.
 
 - The results fit our proposed model and major findings in the original publication[@luo2020transcriptome], e.g. identification of Immuno response. Interestingly, we identified more themes related with skin, cell structure and differentiation than our expectations. Further investigation is needed to determine the relationship between these molecular landscapes to pSS.
 
@@ -215,7 +215,7 @@ dotplot(neg_package[1:10,])
 
 - Increasing evidence suggests that pSS may be associated with inheritable factors, and multiple publications have identified potential risk factors linked to mutations in transcription factors [@imgenberg2021genetics]. To further explore this relationship, we performed a post-analysis (signature gene set analysis) with the aim of identifying enriched transcription factors associated with our findings.
 
-- For this purpose, we used the signature gene set of Transcription Factors from Bader Lab[@GeneSets], utilizing their latest released version from March 2, 2023. To compute the graph, we employed the EnrichmentMap app[@autoannotate] and applied a two-sided Mann-Whitney test to set the threshold at a p-value of 0.05. This allowed us to identify and showcase three selected signature sets as demonstrative examples of the transcription factors potentially implicated in pSS. These transcription factor signature sets are shown in table [Table 2](Transcription factor signiture study):
+- For this purpose, we used the signature gene set of Transcription Factors from Bader Lab[@GeneSets], utilizing their latest released version from March 2, 2023. To compute the graph, we employed the `EnrichmentMap` app[@autoannotate] and applied a two-sided Mann-Whitney test to set the threshold at a p-value of 0.05. This allowed us to identify and showcase three selected signature sets as demonstrative examples of the transcription factors potentially implicated in pSS. These transcription factor signature sets are shown in table [Table 2](Transcription factor signiture study):
 
   | Signiture TFs                                                          |
   |------------------------------------------------------------------------|
@@ -229,12 +229,12 @@ dotplot(neg_package[1:10,])
 ## Post-analysis results
 ![](./A3/figs/post.png)
 
-**Figure 6.** Selected Transcription Factor signature genesets. (A) STAT4 interacts with multiple immune response genesets. (B) IRF5 is related to protein biosynthesis and cell development. (C) ATF4 enriches to infection signalling pathway.
+**Figure 6.** Selected Transcription Factor signature genesets. (A) `STAT4` interacts with multiple immune response genesets. (B) `IRF5` is related to protein biosynthesis and cell development. (C) `ATF4` enriches to infection signalling pathway.
 
 
--  As shown in [Figure 6](Post-analysis results), we closely examined three transcription factor gene sets: STAT4, IRF5, and ATF4. STAT4 is associated with multiple immune response gene sets, while IRF5 is related to protein synthesis and cell development. Notably, both of these transcription factors have been reported as risk factors for pSS [@imgenberg2021genetics]. IRF5, in particular, is a transcription factor that operates downstream of toll-like receptors (TLRs) and type I IFN receptors, promoting the expression of numerous antiviral and pro-inflammatory proteins[@takaoka2005integral]. Meanwhile, STAT4 is involved in activating the downstream immunomodulatory cytokine secretion[@nordmark2009additive]. Our findings align with the known roles of these transcription factors in pSS.
+-  As shown in [Figure 6](Post-analysis results), we closely examined three transcription factor gene sets: `STAT4`, `IRF5`, and `ATF4.` `STAT4` is associated with multiple immune response gene sets, while `IRF5` is related to protein synthesis and cell development. Notably, both of these transcription factors have been reported as risk factors for pSS [@imgenberg2021genetics]. `IRF5`, in particular, is a transcription factor that operates downstream of toll-like receptors (TLRs) and type I IFN receptors, promoting the expression of numerous antiviral and pro-inflammatory proteins[@takaoka2005integral]. Meanwhile, `STAT4` is involved in activating the downstream immunomodulatory cytokine secretion[@nordmark2009additive]. Our findings align with the known roles of these transcription factors in pSS.
 
-- However, to the best of our knowledge, ATF4 has not been reported in any articles related to pSS. ATF4 is known to mediate programmed cell death by promoting the expression of genes involved in cellular amino acid metabolic processes, mRNA translation, and the terminal unfolded protein response [@ohoka2005trb3]. This suggests that ATF4 plays a role in stress response. Intriguingly, the gene is primarily located on the X chromosome [@ohoka2005trb3], and given pSS's high occurrence in females (16 females : 1 male) [@imgenberg2021genetics], this may imply a potential role for ATF4 in pSS pathogenesis. Nevertheless, further investigation is needed to confirm these preliminary observations and to fully understand the role of ATF4 in the context
+- However, to the best of our knowledge, `ATF4` has not been reported in any articles related to `pSS.` `ATF4` is known to mediate programmed cell death by promoting the expression of genes involved in cellular amino acid metabolic processes, mRNA translation, and the terminal unfolded protein response [@ohoka2005trb3]. This suggests that `ATF4` plays a role in stress response. Intriguingly, the gene is primarily located on the X chromosome [@ohoka2005trb3], and given pSS's high odds in females (16 females : 1 male) [@imgenberg2021genetics], this may imply a potential role for `ATF4` in pSS pathogenesis. Nevertheless, further investigation is needed to confirm these preliminary observations and to fully understand the role of `ATF4` in the context
 
 
 
@@ -247,10 +247,11 @@ dotplot(neg_package[1:10,])
 
 - Can you find evidence, i.e. publications, to support some of the results that you see. How does this evidence support your result?
 
-> We would like to highlight a novel finding from our post-analysis ([here](Post analysis)), which identified a novel transcription factor, ATF4, as being associated with enriched gene sets in pSS, even though it has not been reported in previous pSS studies to the best of our knowledge.
-> Transcription factor ATF4 is known to mediate programmed cell death by promoting the expression of genes involved in cellular amino acid metabolic processes, mRNA translation, and the terminal unfolded protein response [@ohoka2005trb3]. This function aligns with the immune response mechanism of pSS.
-> Additionally, ATF4 has multiple gene replications located on the X chromosome. The X chromosome has been proposed as a promising candidate for involvement in pSS pathogenesis, as the study by Imgenberg et al. [@imgenberg2021genetics] reported a higher risk for females, with a male-to-female ratio of 1:16. This skewed prevalence suggests a potential connection between the X chromosome and the development of pSS.
-> Taking these factors into account, it may suggest that ATF4, with its roles in cellular processes and location on the X chromosome, may have a potential pathogenic role in pSS. Further investigation is necessary to confirm this hypothesis and elucidate the precise mechanisms through which ATF4 dysfunction might contribute to the development of pSS.
+> We would like to highlight a novel finding from our post-analysis ([here](Post analysis)), which identified a novel transcription factor, `ATF4`, as being associated with enriched gene sets in pSS, even though it has not been reported in previous pSS studies to the best of our knowledge.
+> Transcription factor `ATF4` is known to mediate programmed cell death by promoting the expression of genes involved in cellular amino acid metabolic processes, mRNA translation, and the terminal unfolded protein response [@ohoka2005trb3]. This function aligns with the immune response mechanism of pSS.
+> Additionally, `ATF4` has multiple gene replications located on the X chromosome. The X chromosome has been proposed as a promising candidate for involvement in pSS pathogenesis, as the study by Imgenberg et al. [@imgenberg2021genetics] reported a higher risk for females, with a male-to-female ratio of 1:16. This skewed prevalence suggests a potential connection between the X chromosome and the development of pSS.
+> Taking these factors into account, it may suggest that `ATF4`, with its roles in cellular processes and location on the X chromosome, may have a potential pathogenic role in pSS. Further investigation is necessary to confirm this hypothesis and elucidate the precise mechanisms through which `ATF4` dysfunction might contribute to the development of pSS.
 
+- Post analysis notes can be found [here](Post analysis)
 
 # References
